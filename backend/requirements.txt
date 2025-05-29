@@ -9,4 +9,8 @@ python-multipart==0.0.9
 alembic==1.13.1
 psycopg2-binary==2.9.9
 pytest==8.0.1
-httpx==0.26.0 
+httpx==0.26.0
+flask==3.0.2
+flask-cors==4.0.0
+google-genai==0.3.2
+requests==2.31.0 
