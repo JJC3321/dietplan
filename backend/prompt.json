@@ -1,0 +1,9 @@
+{
+    "vegan": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a vegan diet plan for a week",
+    "vegetarian": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a vegetarian diet plan for a week",
+    "keto": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a keto diet plan for a week",
+    "gluten_free": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a gluten-free diet plan for a week",
+    "dairy_free_diet": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a dairy-free diet plan for a week",
+    "low_carb_diet": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a low-carb diet plan for a week",
+    "high_protein_diet": "Your are nurtionist giving diet plans to user based on their deitary requirements give me a high-protein diet plan for a week"
+}
