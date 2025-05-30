@@ -6,8 +6,10 @@ A AI power diet planner that leverages the USDA nutrition database and local gro
 Create a diet plan that is not only nutritious but also sustainable. 
 
 ## Tech Stack 
-[![React.js](https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge)](React.js) 
+[![React.js](https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge)](React.js)
+[![JavaScript](https://shields.io/badge/JavaScript-F7DF1E?logo=JavaScript&logoColor=000&style=flat-square)](JavaScript)
 [![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=yellow&style=for-the-badge)](Python) 
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](FastAPI)
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-886FBF?logo=googlegemini&logoColor=fff&style=for-the-badge)](https://gemini.google.com/)
 
 
