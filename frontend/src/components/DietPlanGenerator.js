@@ -21,6 +21,7 @@ const DietPlanGenerator = () => {
     activityLevel: '',
     dietaryRestrictions: '',
     goals: '',
+    comment: '',
   });
   const [loading, setLoading] = useState(false);
   const [dietPlan, setDietPlan] = useState(null);
@@ -39,12 +40,19 @@ const DietPlanGenerator = () => {
   const parseDishes = (plan) => {
     // Split by 'Dish Name:' and filter out empty results
     const dishSections = plan.split(/\n?Dish Name:/).filter(Boolean);
-    return dishSections.map(section => {
+    return dishSections.map((section, index) => {
       // The first line is the dish name, the rest is content
       const [nameLine, ...contentLines] = section.trim().split('\n');
+      
+      // Extract total calories and cost
+      const totalCaloriesMatch = contentLines.join('\n').match(/Total Calories: (\d+)/);
+      const totalCostMatch = contentLines.join('\n').match(/Total Cost: \$([\d.]+)/);
+      
       return {
-        title: nameLine.trim(),
+        title: `Meal ${index + 1}: ${nameLine.trim()}`,
         content: contentLines.join('\n').trim(),
+        totalCalories: totalCaloriesMatch ? totalCaloriesMatch[1] : 'N/A',
+        totalCost: totalCostMatch ? `$${totalCostMatch[1]}` : 'N/A'
       };
     });
   };
@@ -63,7 +71,8 @@ const DietPlanGenerator = () => {
         Height: ${formData.height}
         Activity Level: ${formData.activityLevel}
         Dietary Restrictions: ${formData.dietaryRestrictions}
-        Goals: ${formData.goals}`;
+        Goals: ${formData.goals}
+        Additional Comments: ${formData.comment}`;
 
       const response = await axios.post('http://localhost:8000/generate', {
         prompt: prompt,
@@ -155,7 +164,18 @@ const DietPlanGenerator = () => {
                   required
                   fullWidth
                   helperText="e.g., Weight loss, Muscle gain, Maintenance"
-                  sx={{ height: 65, minHeight: 65, maxHeight: 65 }}
+                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
+                />
+                <TextField
+                  label="Additional Comments"
+                  name="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  helperText="Share your cultural dish preferences, food likes/dislikes, or any other comments"
+                  sx={{ height: 120, minHeight: 120, maxHeight: 120 }}
                 />
                 <Button
                   type="submit"

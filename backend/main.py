@@ -31,25 +31,51 @@ class PromptRequest(BaseModel):
     prompt: str
 
 def create_structured_prompt(user_prompt: str) -> str:
-    return f"""Create a diet plan with the following structure. Focus ONLY on the meals and their nutritional information. Do not include any disclaimers, warnings, or additional text.
+    return f"""Generate a diet plan following this EXACT template format. Do not include any dates, disclaimers, or additional text.
 
-For each meal, provide:
-
-Dish Name: [Name of the dish]
-
+Dish Name: [Name]
 Ingredients:
 - [Ingredient 1]
   - Calories: [number]
   - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
 - [Ingredient 2]
   - Calories: [number]
   - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
+Total Calories: [total]
+Total Cost: $[total]
 
-Total Calories: [total calories for the dish]
+Dish Name: [Name]
+Ingredients:
+- [Ingredient 1]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
+- [Ingredient 2]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
+Total Calories: [total]
+Total Cost: $[total]
 
-Base this on the following requirements: {user_prompt}
 
-Remember: Only include the meal information in the exact format above. No additional text, disclaimers, or explanations."""
+Dish Name: [Name]
+Ingredients:
+- [Ingredient 1]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
+- [Ingredient 2]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+  - Cost: $[estimated cost]
+Total Calories: [total]
+Total Cost: $[total]
+
+Requirements: {user_prompt}
+
+IMPORTANT: Follow this exact format. Do not add any dates, times, or additional text. Only include the meal information as shown above."""
 
 @app.post("/generate")
 async def generate_diet_plan(request: PromptRequest):
