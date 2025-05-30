@@ -12,6 +12,54 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import axios from 'axios';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
+import SpaIcon from '@mui/icons-material/Spa';
+import SetMealIcon from '@mui/icons-material/SetMeal';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import GroceryMap from './GroceryMap';
+import MealPlanDisplay from './MealPlanDisplay';
+
+// Fix default marker icon issue in leaflet
+import 'leaflet/dist/leaflet.css';
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+});
+
+const dietOptions = [
+  { label: 'None', icon: <RestaurantIcon /> },
+  { label: 'Vegan', icon: <LocalFloristIcon /> },
+  { label: 'Vegetarian', icon: <SpaIcon /> },
+  { label: 'Pescatarian', icon: <SetMealIcon /> },
+];
+
+const frequencyOptions = [
+  { label: 'Breakfast', value: 'breakfast' },
+  { label: 'Lunch', value: 'lunch' },
+  { label: 'Dinner', value: 'dinner' },
+  { label: 'All Day', value: 'all' },
+];
+
+const daysOfWeek = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+const dietDescriptions = {
+  Normal: "No dietary restrictions.",
+  Vegan: "Excludes all animal products.",
+  Vegetarian: "Excludes meat and fish, but may include animal products",
+  Pescatarian: "Excludes meat but includes seafood.",
+};
 
 const DietPlanGenerator = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +76,8 @@ const DietPlanGenerator = () => {
   const [error, setError] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
   const [meals, setMeals] = useState([]);
+  const [diet, setDiet] = useState('Normal');
+  const [frequency, setFrequency] = useState('all');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -80,6 +130,10 @@ const DietPlanGenerator = () => {
 
       setDietPlan(response.data.response);
       setMeals(parseDishes(response.data.response));
+      // Save meal plan and form data to localStorage
+      localStorage.setItem('mealPlan', JSON.stringify(parseDishes(response.data.response)));
+      localStorage.setItem('mealPlanDays', JSON.stringify(daysOfWeek));
+      localStorage.setItem('personalInfo', JSON.stringify(formData));
     } catch (err) {
       setError('Failed to generate diet plan. Please try again.');
       console.error('Error:', err);
@@ -97,14 +151,19 @@ const DietPlanGenerator = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6} alignItems="flex-start">
-          <Paper elevation={3} sx={{ p: 4, height: '100%' }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-              Generate Your Personalized Diet Plan
+    <Box sx={{ maxWidth: 1400, mx: 'auto', p: 2 }}>
+      <Grid container spacing={4}>
+        {/* Profile Details Form (center/left) */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} sx={{
+            p: 4,
+            borderRadius: 4,
+            bgcolor: 'background.default',
+            boxShadow: 3,
+          }}>
+            <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'primary.main', fontWeight: 600 }}>
+              Personal Information
             </Typography>
-            
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'grid', gap: 2 }}>
                 <TextField
@@ -115,139 +174,145 @@ const DietPlanGenerator = () => {
                   onChange={handleChange}
                   required
                   fullWidth
-                  sx={{ height: 56, minHeight: 56, maxHeight: 56 }}
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
                 />
                 <TextField
-                  label="Weight"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                  helperText={'Enter weight with unit: e.g., 150 lb or 68 kg'}
-                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
-                />
-                <TextField
-                  label="Height"
+                  label="Height (feet, inches)"
                   name="height"
                   value={formData.height}
                   onChange={handleChange}
                   required
                   fullWidth
-                  helperText={'Enter height in either format: 5\'11" (feet and inches) or 180 cm'}
-                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
+                />
+                <TextField
+                  label="Weight (lbs)"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
                 />
                 <TextField
                   label="Activity Level"
                   name="activityLevel"
                   value={formData.activityLevel}
                   onChange={handleChange}
-                  required
                   fullWidth
-                  helperText="e.g., Sedentary, Lightly Active, Moderately Active, Very Active"
-                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
-                />
-                <TextField
-                  label="Dietary Restrictions"
-                  name="dietaryRestrictions"
-                  value={formData.dietaryRestrictions}
-                  onChange={handleChange}
-                  fullWidth
-                  helperText="e.g., Vegetarian, Vegan, Gluten-free, etc."
-                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
                 />
                 <TextField
                   label="Goals"
                   name="goals"
                   value={formData.goals}
                   onChange={handleChange}
-                  required
                   fullWidth
-                  helperText="e.g., Weight loss, Muscle gain, Maintenance"
-                  sx={{ height: 70, minHeight: 70, maxHeight: 70 }}
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
                 />
                 <TextField
-                  label="Additional Comments"
+                  label="Comment"
                   name="comment"
                   value={formData.comment}
                   onChange={handleChange}
                   fullWidth
                   multiline
-                  rows={3}
-                  helperText="Share your cultural dish preferences, food likes/dislikes, or any other comments"
-                  sx={{ height: 120, minHeight: 120, maxHeight: 120 }}
+                  minRows={2}
+                  sx={{ bgcolor: '#fff', borderRadius: 2 }}
                 />
                 <Button
                   type="submit"
                   variant="contained"
                   size="large"
                   disabled={loading}
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 2, borderRadius: 3 }}
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Generate Diet Plan'}
+                  {loading ? <CircularProgress size={24} /> : 'Save'}
                 </Button>
               </Box>
             </form>
           </Paper>
         </Grid>
 
+        {/* Map and Meal Plan (right) */}
         <Grid item xs={12} md={6}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          {dietPlan && (
-            <Paper elevation={3} sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <IconButton onClick={handleBack} disabled={activeStep === 0}>
-                  <ChevronLeft />
-                </IconButton>
-                <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
-                  {meals[activeStep]?.title || 'Your Diet Plan'}
-                </Typography>
-                <IconButton onClick={handleNext} disabled={activeStep === meals.length - 1}>
-                  <ChevronRight />
-                </IconButton>
-              </Box>
-              
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {meals.map((meal, index) => (
-                  <Box
-                    key={index}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Diet & Frequency Selection Panel */}
+            <Paper elevation={2} sx={{ borderRadius: 4, bgcolor: 'primary.main', color: '#fff', p: 3, mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: '#fff', textAlign: 'center' }}>
+                Dietary Restrictions
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
+                {dietOptions.map((opt) => (
+                  <Button
+                    key={opt.label}
+                    variant={diet === opt.label ? 'contained' : 'outlined'}
+                    onClick={() => setDiet(opt.label)}
                     sx={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      transform: `translateX(${(index - activeStep) * 100}%)`,
-                      transition: 'transform 0.3s ease-in-out',
-                      display: 'flex',
+                      color: '#fff',
+                      borderColor: '#fff',
+                      bgcolor: diet === opt.label ? 'secondary.main' : 'primary.main',
+                      minWidth: 64,
+                      borderRadius: 2,
                       flexDirection: 'column',
-                      p: 2,
+                      py: 1.5,
+                      '&:hover': { bgcolor: 'secondary.main', borderColor: '#fff' },
                     }}
                   >
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        whiteSpace: 'pre-wrap',
-                        flexGrow: 1,
-                        overflow: 'auto',
-                      }}
-                    >
-                      {meal.content}
-                    </Typography>
-                  </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      {opt.icon}
+                      <Typography variant="caption" sx={{ color: '#fff', mt: 0.5 }}>
+                        {opt.label}
+                      </Typography>
+                    </Box>
+                  </Button>
                 ))}
               </Box>
+              <Typography
+                variant="body2"
+                sx={{ color: '#fff', textAlign: 'center', mb: 2, minHeight: 24 }}
+              >
+                {dietDescriptions[diet]}
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: '#fff', mb: 1, textAlign: 'center' }}>
+                FREQUENCY
+              </Typography>
+              <ToggleButtonGroup
+                value={frequency}
+                exclusive
+                onChange={(_, val) => val && setFrequency(val)}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  boxShadow: 2,
+                  border: '1px solid #fff',
+                }}
+              >
+                {frequencyOptions.map((opt, idx) => (
+                  <ToggleButton
+                    key={opt.value}
+                    value={opt.value}
+                    sx={{
+                      color: '#fff',
+                      bgcolor: frequency === opt.value ? 'secondary.main' : 'primary.main',
+                      border: 'none',
+                      borderRadius: 0,
+                      px: 4,
+                      '&:first-of-type': { borderTopLeftRadius: 8, borderBottomLeftRadius: 8 },
+                      '&:last-of-type': { borderTopRightRadius: 8, borderBottomRightRadius: 8 },
+                      '&.Mui-selected': { bgcolor: 'secondary.main', color: '#fff' },
+                      '&:hover': { bgcolor: 'secondary.main' },
+                      minWidth: 0,
+                    }}
+                  >
+                    {opt.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
             </Paper>
-          )}
+          </Box>
         </Grid>
       </Grid>
     </Box>

@@ -3,13 +3,17 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#7A05B4', // Figma purple
     },
     secondary: {
-      main: '#dc004e',
+      main: '#5C50FF', // Figma blue
+    },
+    success: {
+      main: '#87ED8C', // Figma green
     },
     background: {
-      default: '#f5f5f5',
+      default: '#D7B3E7', // Figma light purple
+      paper: '#fff',
     },
   },
   typography: {

@@ -5,6 +5,7 @@ import theme from './theme';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
+import MealPlan from './pages/MealPlan';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/meal-plan" element={<MealPlan />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
