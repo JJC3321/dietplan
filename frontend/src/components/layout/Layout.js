@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Reboot Earth
+            Market Plan
           </Typography>
           <Button color="inherit" component={RouterLink} to="/">
             Home
@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
       <Box component="footer" sx={{ py: 3, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} Reboot Earth. All rights reserved.
+            © {new Date().getFullYear()} Market Plan. All rights reserved.
           </Typography>
         </Container>
       </Box>

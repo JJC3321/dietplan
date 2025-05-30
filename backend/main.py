@@ -30,16 +30,40 @@ model = 'gemini-2.0-flash'
 class PromptRequest(BaseModel):
     prompt: str
 
+def create_structured_prompt(user_prompt: str) -> str:
+    return f"""Create a diet plan with the following structure. Focus ONLY on the meals and their nutritional information. Do not include any disclaimers, warnings, or additional text.
+
+For each meal, provide:
+
+Dish Name: [Name of the dish]
+
+Ingredients:
+- [Ingredient 1]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+- [Ingredient 2]
+  - Calories: [number]
+  - Nutrition: [key nutrients]
+
+Total Calories: [total calories for the dish]
+
+Base this on the following requirements: {user_prompt}
+
+Remember: Only include the meal information in the exact format above. No additional text, disclaimers, or explanations."""
+
 @app.post("/generate")
 async def generate_diet_plan(request: PromptRequest):
     try:
         if not request.prompt:
             raise HTTPException(status_code=400, detail="No prompt provided")
 
+        # Create structured prompt
+        structured_prompt = create_structured_prompt(request.prompt)
+
         # Generate response from Gemini
         response = client.models.generate_content(
             model=model,
-            contents=request.prompt
+            contents=structured_prompt
         )
         
         return {"response": response.text}
