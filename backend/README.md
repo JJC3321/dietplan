@@ -1,6 +1,6 @@
-# Reboot Earth Backend
+# Backend
 
-This is the backend application for the Reboot Earth project, built with FastAPI. It provides an API for generating personalized diet plans using Google's Gemini AI.
+This is the backend application for the Market Plan, built with FastAPI. It provides an API for generating personalized diet plans using Google's Gemini AI.
 
 ## Getting Started
 
