@@ -1,6 +1,6 @@
-# Reboot Earth Frontend
+# Frontend
 
-This is the frontend application for the Reboot Earth project, built with React.
+This is the frontend application for the Market Plan, built with React.
 
 ## Getting Started
 
